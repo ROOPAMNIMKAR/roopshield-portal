@@ -8,15 +8,18 @@ const express = require('express');
 const cors = require('cors');
 
 // Auto-seed database on first run
-const db = require('./db');
-const existing = db.get('users').find({ role: 'admin' }).value();
-if (!existing) {
-  console.log('No admin found — running auto-seed...');
-  try {
+try {
+  const db = require('./db');
+  const existing = db.get('users').find({ role: 'admin' }).value();
+  if (!existing) {
+    console.log('No admin found — running auto-seed...');
     require('./seed-auto');
-  } catch (e) {
-    console.error('Auto-seed failed:', e.message);
+  } else {
+    console.log('Database already has data, skipping seed.');
   }
+} catch (e) {
+  console.error('Database init error:', e.message);
+  console.error(e.stack);
 }
 
 const app = express();

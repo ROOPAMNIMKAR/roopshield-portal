@@ -7,8 +7,17 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const path = require('path');
+const fs = require('fs');
 
-const adapter = new FileSync(path.join(__dirname, 'db.json'));
+// Use /tmp on Render (writable), local __dirname for development
+const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
+const DB_PATH = isRender
+  ? path.join('/tmp', 'db.json')
+  : path.join(__dirname, 'db.json');
+
+console.log('Database path:', DB_PATH);
+
+const adapter = new FileSync(DB_PATH);
 const db = low(adapter);
 
 // ─── Default schema ───────────────────────────────────────────────────────────
