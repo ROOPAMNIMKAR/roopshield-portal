@@ -26,12 +26,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (curl, Postman, mobile apps)
-    // and any localhost port during development
-    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    callback(null, true); // allow all for local hosting
+    // Allow all origins — works for localhost dev and any Render/Netlify deployment
+    callback(null, true);
   },
   credentials: true,
 }));
