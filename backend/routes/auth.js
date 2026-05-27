@@ -22,28 +22,38 @@ function createTransporter() {
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
-  const { email, password, role } = req.body;
-  if (!email || !password || !role) {
-    return res.status(400).json({ error: 'Email, password, and role are required.' });
+  try {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
+      return res.status(400).json({ error: 'Email, password, and role are required.' });
+    }
+
+    const user = db.get('users')
+      .find((u) => u.email === email.trim().toLowerCase() && u.role === role)
+      .value();
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
+    }
+
+    if (!user.password_hash) {
+      return res.status(500).json({ error: 'Account has no password set. Contact admin.' });
+    }
+
+    const passwordMatch = bcrypt.compareSync(password, user.password_hash);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
+    }
+
+    const secret = process.env.JWT_SECRET || 'roopshield2026secretkey_fallback';
+    const payload = { id: user.id, name: user.name, email: user.email, role: user.role };
+    const token = jwt.sign(payload, secret, { expiresIn: '8h' });
+
+    return res.json({ token, user: payload });
+  } catch (err) {
+    console.error('Login error:', err.message, err.stack);
+    return res.status(500).json({ error: 'Login failed: ' + err.message });
   }
-
-  const user = db.get('users')
-    .find((u) => u.email === email.trim().toLowerCase() && u.role === role)
-    .value();
-
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
-  }
-
-  const passwordMatch = bcrypt.compareSync(password, user.password_hash);
-  if (!passwordMatch) {
-    return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
-  }
-
-  const payload = { id: user.id, name: user.name, email: user.email, role: user.role };
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
-
-  return res.json({ token, user: payload });
 });
 
 // GET /api/auth/me
