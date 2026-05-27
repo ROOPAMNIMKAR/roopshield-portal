@@ -10,12 +10,13 @@ const path = require('path');
 const fs = require('fs');
 
 // Use /tmp on Render (writable), local __dirname for development
-const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
-const DB_PATH = isRender
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.RENDER_SERVICE_ID;
+const DB_PATH = isProduction
   ? path.join('/tmp', 'db.json')
   : path.join(__dirname, 'db.json');
 
 console.log('Database path:', DB_PATH);
+console.log('Is production:', !!isProduction);
 
 const adapter = new FileSync(DB_PATH);
 const db = low(adapter);

@@ -53,7 +53,13 @@ app.use('/api',               require('./routes/misc'));
 // ─── Health check ─────────────────────────────────────────────────────────────
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  try {
+    const db = require('./db');
+    const userCount = db.get('users').value().length;
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), users: userCount });
+  } catch (e) {
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), dbError: e.message });
+  }
 });
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
