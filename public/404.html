@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RoopShield Portal</title>
+  <script>
+    // SPA redirect hack for static hosts that don't support rewrites
+    var path = window.location.pathname;
+    var search = window.location.search;
+    var hash = window.location.hash;
+    var url = '/?redirect=' + encodeURIComponent(path + search + hash);
+    window.location.replace(url);
+  </script>
+</head>
+<body>Redirecting...</body>
+</html>
