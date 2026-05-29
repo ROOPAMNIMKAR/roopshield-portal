@@ -5,7 +5,8 @@
  * On 401 responses the user is redirected to /login.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
+console.log('[DEBUG] API Base URL configured:', BASE_URL);
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 
@@ -33,7 +34,7 @@ async function request(method, path, body = null) {
 
   const res = await fetch(`${BASE_URL}${path}`, options);
 
-  if (res.status === 401) {
+  if (res.status === 401 && path !== '/auth/login') {
     // Token expired or invalid — clear session and redirect
     sessionStorage.removeItem('roopshield_session');
     window.location.href = '/login';
